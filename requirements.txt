@@ -1,0 +1,6 @@
+pymongo
+requests
+Flask
+Flask-Cors
+python-dotenv
+secure-smtplib
