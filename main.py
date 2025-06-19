@@ -1,3 +1,5 @@
+import random
+
 from operations.mongo_operation import mongoOperation
 from operations.common_operations import commonOperation
 from utils.constant import constant_dict
@@ -9,6 +11,7 @@ from utils.html_format import htmlOperation
 from operations.mail_sending import emailOperation
 import uuid
 from werkzeug.utils import secure_filename, redirect
+from operations import cache
 
 app = Flask(__name__)
 CORS(app)
@@ -115,10 +118,33 @@ def login_user():
         print(f"{datetime.utcnow()}: Error in login user data route: {str(e)}")
         return response_data
 
-@app.route("/quickoo/otp-email-verification", methods=["POST"])
-def user_otp_email_verification():
+@app.route("/quickoo/otp-verification", methods=["POST"])
+def user_otp_verification():
     try:
         otp = request.form.get("otp", "")
+        email = request.form.get("email", "")
+        email_mapping = cache.get("email_mapping") or {}
+        try:
+            sent_otp = email_mapping[email]
+            if int(otp)==int(sent_otp):
+                response_data = commonOperation().get_success_response(200, {"message": "OTP verified successfully"})
+                return response_data
+            else:
+                response_data = commonOperation().get_error_msg("Wrong OTP..")
+                return response_data
+        except:
+            response_data = commonOperation().get_error_msg("Wrong OTP..")
+            return response_data
+
+    except Exception as e:
+        response_data = commonOperation().get_error_msg("Please try again...")
+        print(f"{datetime.now()}: Error in otp email verification: {str(e)}")
+        return response_data
+
+@app.route("/quickoo/otp-sending", methods=["POST"])
+def otp_sending():
+    try:
+        otp = random.randint(111111, 999999)
         email = request.form.get("email", "")
         process = request.form.get("process", "")
         if process=="register":
@@ -129,6 +155,9 @@ def user_otp_email_verification():
 
         html_format = htmlOperation().otp_verification_process(otp)
         emailOperation().send_email(email, "Quickoo: Your Account Verification Code", html_format)
+        email_mapping = cache.get("email_mapping") or {}
+        email_mapping[email]=otp
+        cache.set_user_cache("email_mapping", email_mapping)
         response_data = commonOperation().get_success_response(200, {"message": "Mail sent successfully..."})
         return response_data
 
