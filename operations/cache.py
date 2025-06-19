@@ -3,8 +3,10 @@ import json
 import redis
 
 redis_client = redis.Redis(
-    host="167.71.142.207", port=6379, ssl=True, db=0
+    host="167.71.142.207", port=6379, db=0
 )
+
+print("redis client connected successful.. ", redis_client)
 
 def get(key):
     value = redis_client.get(key)
