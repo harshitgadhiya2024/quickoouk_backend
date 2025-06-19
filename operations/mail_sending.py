@@ -8,8 +8,8 @@ import os
 
 SMTP_SERVER = "smtp.gmail.com"  # Change if using Outlook, Yahoo, etc.
 SMTP_PORT = 587  # Use 465 for SSL, 587 for TLS
-EMAIL_ADDRESS = "info.quickoo@gmail.com"
-EMAIL_PASSWORD = "qlqfwcswmurvvjko"  # Use an App Password, not your actual password
+EMAIL_ADDRESS = "gadhiyaharshit2023@gmail.com"
+EMAIL_PASSWORD = "qnrrtxozvzsbeofd"  # Use an App Password, not your actual password
 
 class emailOperation():
 

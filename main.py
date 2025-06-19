@@ -128,7 +128,7 @@ def user_otp_email_verification():
                 return commonOperation().get_error_msg("Email already registered...")
 
         html_format = htmlOperation().otp_verification_process(otp)
-        # emailOperation().send_email(email, "Quickoo: Your Account Verification Code", html_format)
+        emailOperation().send_email(email, "Quickoo: Your Account Verification Code", html_format)
         response_data = commonOperation().get_success_response(200, {"message": "Mail sent successfully..."})
         return response_data
 
@@ -147,7 +147,7 @@ def user_forgot_password():
         if email_data:
             if email_data[0]["is_active"]:
                 html_format = htmlOperation().otp_verification_process(otp)
-                # emailOperation().send_email(email, "Quickoo: Your Account Verification Code", html_format)
+                emailOperation().send_email(email, "Quickoo: Your Account Verification Code", html_format)
                 return commonOperation().get_success_response(200, {"message": "Otp sent successfully", "user_id": email_data[0]["user_id"]})
             else:
                 return commonOperation().get_error_msg("Your account was disabled, Contact administration")
@@ -430,6 +430,22 @@ def create_ticket():
     except Exception as e:
         response_data = commonOperation().get_error_msg("Please try again..")
         print(f"{datetime.utcnow()}: Error in check create ticket: {str(e)}")
+        return response_data
+
+@app.route('/quickoo/delete-account', methods=['POST'])
+def delete_account():
+    try:
+        user_id = request.args.get("user_id", "")
+        mongoOperation().delete_data_from_coll(client, "quickoo_uk", "user_data", {"user_id": user_id})
+        mongoOperation().delete_data_from_coll(client, "quickoo_uk", "rides_data", {"user_id": user_id})
+        mongoOperation().delete_data_from_coll(client, "quickoo_uk", "login_mapping", {"user_id": user_id})
+        mongoOperation().delete_data_from_coll(client, "quickoo_uk", "complaint_data", {"user_id": user_id})
+        mongoOperation().delete_data_from_coll(client, "quickoo_uk", "ticket_data", {"user_id": user_id})
+        return commonOperation().get_success_response(200, {"message": "Account delete successfully"})
+
+    except Exception as e:
+        response_data = commonOperation().get_error_msg("Please try again..")
+        print(f"{datetime.utcnow()}: Error in delete account: {str(e)}")
         return response_data
 
 
