@@ -1,0 +1,10 @@
+operations/__pycache__/cache.cpython-39.pyc
+*.pyc
+*.pyc
+*.pyc
+operations/__pycache__/common_operations.cpython-39.pyc
+operations/__pycache__/mail_sending.cpython-39.pyc
+operations/__pycache__/mongo_operation.cpython-39.pyc
+utils/__pycache__/constant.cpython-39.pyc
+utils/__pycache__/html_format.cpython-39.pyc
+*.pyc
