@@ -11,7 +11,6 @@ from utils.html_format import htmlOperation
 from operations.mail_sending import emailOperation
 import uuid
 from werkzeug.utils import secure_filename, redirect
-from operations import cache
 
 app = Flask(__name__)
 CORS(app)
@@ -124,17 +123,12 @@ def user_otp_verification():
         print("coming to verification")
         otp = request.form.get("otp", "")
         email = request.form.get("email", "")
-        email_mapping = cache.get("email_mapping") or {}
-        try:
-            print("get otp from cache")
-            sent_otp = email_mapping[email]
-            if int(otp)==int(sent_otp):
-                response_data = commonOperation().get_success_response(200, {"message": "OTP verified successfully"})
-                return response_data
-            else:
-                response_data = commonOperation().get_error_msg("Wrong OTP..")
-                return response_data
-        except:
+        otp = int(otp)
+        email_data = list(mongoOperation().get_spec_data_from_coll(client, "quickoo_uk", "otp_data", {"email": email, "otp": otp}))
+        if email_data:
+            response_data = commonOperation().get_success_response(200, {"message": "OTP verified successfully"})
+            return response_data
+        else:
             response_data = commonOperation().get_error_msg("Wrong OTP..")
             return response_data
 
@@ -158,16 +152,17 @@ def otp_sending():
         print("checked mail")
         html_format = htmlOperation().otp_verification_process(str(otp))
         emailOperation().send_email(email, "Quickoo: Your Account Verification Code", html_format)
-        email_mapping = cache.get("email_mapping") or {}
-        email_mapping[email]=otp
-        print("stored cache memory")
-        cache.set_user_cache("email_mapping", email_mapping)
+        email_otp_data = list(mongoOperation().get_spec_data_from_coll(client, "quickoo_uk", "otp_data", {"email": email}))
+        if email_otp_data:
+            mongoOperation().update_mongo_data(client, "quickoo_uk", "otp_data", {"email": email}, {"otp": otp})
+        else:
+            mongoOperation().insert_data_from_coll(client, "quickoo_uk", "otp_data", {"email": email, "otp": otp})
         response_data = commonOperation().get_success_response(200, {"message": "Mail sent successfully..."})
         return response_data
 
     except Exception as e:
         response_data = commonOperation().get_error_msg("Please try again...")
-        print(f"{datetime.now()}: Error in otp email verification: {str(e)}")
+        print(f"{datetime.now()}: Error in otp sending: {str(e)}")
         return response_data
 
 @app.route("/quickoo/forgot-password", methods=["POST"])
