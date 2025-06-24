@@ -147,21 +147,21 @@ def user_otp_verification():
 def otp_sending():
     try:
         print("request coming")
-        # otp = random.randint(111111, 999999)
-        # email = request.form.get("email", "")
-        # process = request.form.get("process", "")
-        # if process=="register":
-        #     get_all_user_data = mongoOperation().get_all_data_from_coll(client, "quickoo_uk", "user_data")
-        #     all_emails = [user_data["email"] for user_data in get_all_user_data]
-        #     if email in all_emails:
-        #         return commonOperation().get_error_msg("Email already registered...")
-        # print("checked mail")
-        # html_format = htmlOperation().otp_verification_process(otp)
-        # emailOperation().send_email(email, "Quickoo: Your Account Verification Code", html_format)
-        # email_mapping = cache.get("email_mapping") or {}
-        # email_mapping[email]=otp
-        # print("stored cache memory")
-        # cache.set_user_cache("email_mapping", email_mapping)
+        otp = random.randint(111111, 999999)
+        email = request.form.get("email", "")
+        process = request.form.get("process", "")
+        if process=="register":
+            get_all_user_data = mongoOperation().get_all_data_from_coll(client, "quickoo_uk", "user_data")
+            all_emails = [user_data["email"] for user_data in get_all_user_data]
+            if email in all_emails:
+                return commonOperation().get_error_msg("Email already registered...")
+        print("checked mail")
+        html_format = htmlOperation().otp_verification_process(otp)
+        emailOperation().send_email(email, "Quickoo: Your Account Verification Code", html_format)
+        email_mapping = cache.get("email_mapping") or {}
+        email_mapping[email]=otp
+        print("stored cache memory")
+        cache.set_user_cache("email_mapping", email_mapping)
         response_data = commonOperation().get_success_response(200, {"message": "Mail sent successfully..."})
         return response_data
 
